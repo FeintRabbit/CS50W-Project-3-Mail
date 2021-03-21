@@ -1,0 +1,19 @@
+textarea {
+  min-height: 400px;
+}
+
+.email-item {
+  padding: 0.5rem;
+  border: 1px black solid;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.email-item:hover {
+  cursor: pointer;
+}
+
+.email-read {
+  background: rgba(211, 211, 211, 0.5);
+}
