@@ -78,9 +78,51 @@ function render_email(email) {
   <p><strong>To</strong>: ${email.recipients}</p>
   <p><strong>Subject</strong>: ${email.subject}</p>
   <p><strong>Timestamp</strong>: ${email.timestamp}</p>
+  <button class="btn btn-sm btn-outline-primary" id="archive">${
+    email.archived ? 'Unarchive' : 'Archive'
+  }</button>
+  <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
   <hr/>
   <p>${email.body}</p>
   `;
+
+  // archive email btn
+  emailDOM
+    .querySelector('#archive')
+    .addEventListener('click', () => archive(email));
+
+  // reply to an email
+  emailDOM
+    .querySelector('#reply')
+    .addEventListener('click', () => reply(email));
+}
+
+// archive email & load inbox
+async function archive(email) {
+  await fetch(`/emails/${email.id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      archived: email.archived ? false : true,
+    }),
+  });
+  load_mailbox('inbox');
+}
+
+// reply
+function reply(email) {
+  const { sender, subject, timestamp, body } = email;
+
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+
+  // Clear out composition fields
+  document.querySelector('#compose-recipients').value = `${sender}`;
+  document.querySelector('#compose-subject').value = `${
+    subject.startsWith('Re:') ? subject : `Re: ${subject}`
+  }`;
+  document.querySelector('#compose-body').value = `
+  On ${timestamp} ${sender} wrote: ${body}`;
 }
 
 // render mailbox emails on the page
@@ -96,6 +138,7 @@ function render_mail(emails) {
     row.innerHTML = `
     <span><strong>${email.sender}</strong>: ${email.subject}</span> <span>${email.timestamp}</span>`;
 
+    // add open mail event listener to email
     row.addEventListener('click', open_email);
 
     emailDOM.appendChild(row);
